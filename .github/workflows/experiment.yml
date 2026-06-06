@@ -1,0 +1,60 @@
+name: Run Sentiment Analysis and Export Results
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch: # Memungkinkan Anda menjalankan workflow secara manual dari web GitHub
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checkout repositori kode Anda
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    # 2. Setup environment Python
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-node-version: '3.10'
+        cache: 'pip' # Mempercepat instalasi library di run berikutnya
+
+    # 3. Caching untuk Model Hugging Face (BERT)
+    # Langkah ini sangat krusial agar workflow tidak mendownload ulang model BERT sebesar 1.5GB setiap kali dijalankan
+    - name: Cache Hugging Face Models
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/huggingface
+        key: ${{ runner.os }}-hf-transformer-${{ hashFiles('nb.py') }}
+        restore-keys: |
+          ${{ runner.os }}-hf-transformer-
+
+    # 4. Instalasi Dependensi yang Dibutuhkan
+    # Jika Anda belum membuat file requirements.txt, baris di bawah akan menginstal manual library utama Anda
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        else
+          pip install pandas numpy scikit-learn nltk emoji openpyxl torch transformers tqdm
+        fi
+
+    # 5. Menjalankan Skrip Analisis Sentimen
+    - name: Run Python Analysis Script
+      run: |
+        python nb.py
+
+    # 6. Mengunggah Folder Hasil sebagai GitHub Artifacts
+    # Anda dapat mengunduh folder ini berupa file .zip di tab "Actions" setelah workflow selesai berjalan
+    - name: Upload Exported Results
+      if: always() # Tetap unggah hasil log meskipun ada bagian skrip Naive Bayes yang error/warning
+      uses: actions/upload-artifact@v4
+      with:
+        name: hasil-analisis-sentimen
+        path: hasil_ekspor/
+        retention-days: 7 # Hasil zip akan disimpan otomatis oleh GitHub selama 7 hari
