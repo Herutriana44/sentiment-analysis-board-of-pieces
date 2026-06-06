@@ -13,7 +13,9 @@ KEYWORDS = [
 SINCE = "2025-01-01"
 UNTIL = datetime.now().strftime('%Y-%m-%d')
 LIMIT = 5000
-OUTPUT_DIR = "tweets-data"
+# Gunakan path absolut dari directory kerja saat ini
+BASE_DIR = os.getcwd()
+OUTPUT_DIR = os.path.join(BASE_DIR, "tweets-data")
 AUTH_TOKEN = os.getenv("TWITTER_AUTHTOKEN")
 
 def run_scraper():
@@ -25,22 +27,24 @@ def run_scraper():
 
     for keyword in KEYWORDS:
         safe_filename = keyword.lower().replace(" ", "_") + ".csv"
+        # Pastikan kita memberikan path file yang benar ke tweet-harvest
         filepath = os.path.join(OUTPUT_DIR, safe_filename)
         search_query = f"{keyword} since:{SINCE} until:{UNTIL}"
         
         print(f"Scraping: {search_query}")
         
-        # Command to run tweet-harvest (assumes it is installed via npm globally or locally)
+        # Perintah ke tweet-harvest
         cmd = [
             "npx", "--yes", "tweet-harvest",
-            "-o", filepath,
+            "-o", safe_filename, # tweet-harvest akan menyimpan di working dir, kita set working dir ke output
             "-s", search_query,
             "-l", str(LIMIT),
             "--token", AUTH_TOKEN
         ]
         
         try:
-            subprocess.run(cmd, check=True)
+            # Jalankan di dalam folder output agar file tersimpan disana
+            subprocess.run(cmd, check=True, cwd=OUTPUT_DIR)
             print(f"Saved to {filepath}")
         except subprocess.CalledProcessError as e:
             print(f"Failed to scrape {keyword}: {e}")
@@ -59,7 +63,7 @@ def process_data():
             
     if dataframes:
         combined_df = pd.concat(dataframes).drop_duplicates().reset_index(drop=True)
-        combined_df.to_excel("BoP_Indonesia_Scraped_Data.xlsx", index=False)
+        combined_df.to_excel(os.path.join(BASE_DIR, "BoP_Indonesia_Scraped_Data.xlsx"), index=False)
         print("Data processed and saved to BoP_Indonesia_Scraped_Data.xlsx")
 
 if __name__ == "__main__":
