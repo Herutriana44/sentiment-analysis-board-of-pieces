@@ -50,12 +50,15 @@ def run_scraper():
             print(f"Failed to scrape {keyword}: {e}")
 
 def process_data():
+    print(f"DEBUG: Checking for CSV files in {OUTPUT_DIR}")
     all_files = [os.path.join(OUTPUT_DIR, f) for f in os.listdir(OUTPUT_DIR) if f.endswith('.csv')]
+    print(f"DEBUG: Found files: {all_files}")
     dataframes = []
     
     for file in all_files:
         try:
             df = pd.read_csv(file)
+            print(f"DEBUG: Read {file}, shape: {df.shape}")
             if not df.empty:
                 dataframes.append(df)
         except Exception as e:
@@ -63,8 +66,11 @@ def process_data():
             
     if dataframes:
         combined_df = pd.concat(dataframes).drop_duplicates().reset_index(drop=True)
-        combined_df.to_excel(os.path.join(BASE_DIR, "BoP_Indonesia_Scraped_Data.xlsx"), index=False)
-        print("Data processed and saved to BoP_Indonesia_Scraped_Data.xlsx")
+        output_excel = os.path.join(BASE_DIR, "BoP_Indonesia_Scraped_Data.xlsx")
+        combined_df.to_excel(output_excel, index=False)
+        print(f"Data processed and saved to {output_excel}")
+    else:
+        print("No valid data to process from CSV files.")
 
 if __name__ == "__main__":
     run_scraper()
