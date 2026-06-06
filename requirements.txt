@@ -1,5 +1,6 @@
 pandas
-openpyxlscikit-learn
+openpyxl
+scikit-learn
 transformers
 torch
 emoji
