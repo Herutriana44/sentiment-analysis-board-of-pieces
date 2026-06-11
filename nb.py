@@ -88,7 +88,7 @@ def preprocess_text(text):
     text = [lemmatizer.lemmatize(word) for word in text]
     return " ".join(text)
 
-DATA_PATH = "BoP_Indonesia_Scraped_Data.xlsx"  
+DATA_PATH = "rupiah-anjlok-sentiment-data.xlsx"  
 TEXT_COLUMN = "full_text"
 
 try:
