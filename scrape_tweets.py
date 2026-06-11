@@ -5,12 +5,13 @@ import pandas as pd
 
 # Configuration
 KEYWORDS = [
-    "board of piece indonesia",
-    "bop indonesia",
-    "prabowo board of piece",
-    "board of piece 17 triliun"
+    "​rupiah melemah",
+    "​rupiah anjlok",
+    "​rupiah terdepresiasi",
+    "​nilai tukar rupiah terkini",
+    "​kurs usd idr hari ini"
 ]
-SINCE = "2025-01-01"
+SINCE = "2026-01-01"
 UNTIL = datetime.now().strftime('%Y-%m-%d')
 LIMIT = 5000
 # Gunakan path absolut dari directory kerja saat ini
